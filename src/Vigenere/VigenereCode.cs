@@ -11,6 +11,7 @@ namespace Vigenere.Library
         public VigenereCode(string codeWord, int salt)
         {
             this.codeWord = codeWord;
+            this.salt = salt;
         }
         public string Encrypt(string encryptedPrhase)
         {
@@ -24,7 +25,7 @@ namespace Vigenere.Library
                 //Se obtiene la posicion de la letra clave
                 int keyPosition = GetLetterNumber(key);
                 //Se encripta el valor aplicando el desplazamiento
-                string encrypted = Shift(keyPosition + salt, valueToEncrypt);
+                string encrypted = Shift(keyPosition + this.salt, valueToEncrypt);
                 //Se agrega el resultado a la cadena encriptada
                 decrypted.Append(encrypted);
             }
@@ -38,11 +39,11 @@ namespace Vigenere.Library
                 //Se obtiene la letra a desencriptar
                 string valueToDecrypt = encryptedPrhase[i].ToString().ToUpper();
                 //se obtiene la letra utilizada para encriptar (clave)
-                string key =codeWord[valueToDecrypt[0]%codeWord.Length].ToString();
+                string key = codeWord[i%codeWord.Length].ToString();
                 //Se obtiene la posicion de la letra clave
                 int keyPosition = GetLetterNumber(key);
                 //Se desencripta el valor invirtiendo el desplazamiento
-                string decryptedValue = RevertShift(keyPosition + salt, valueToDecrypt);
+                string decryptedValue = RevertShift(keyPosition + this.salt, valueToDecrypt);
                 //Se agrega el resultado a la cadena desencriptada
                 decrypted.Append(decryptedValue);
             }
@@ -56,9 +57,15 @@ namespace Vigenere.Library
         /// <returns></returns>
         private string RevertShift(int shift, string charToShift)
         {
-            int totalShift = GetLetterNumber(charToShift) + shift + fullAlphabet.Length;
-            char result = fullAlphabet[totalShift % fullAlphabet.Length];
-            return result.ToString();
+            int totalShift = GetLetterNumber(charToShift) - shift;
+            if (totalShift >= 0)
+            {
+                return (fullAlphabet[(totalShift)]).ToString();
+            }
+            else 
+            {
+                return (fullAlphabet[totalShift + fullAlphabet.Length]).ToString();
+            }            
         }
         /// <summary>
         /// Desplaza la letra en el abecedario hacia la derecha
@@ -66,11 +73,18 @@ namespace Vigenere.Library
         /// <param name="shift">desplazamiento</param>
         /// <param name="charToShift">letra a desplazar</param>
         /// <returns></returns>
+       
         private string Shift(int shift, string charToShift)
         {
-            int totalShift = GetLetterNumber(charToShift) + shift;
-            char result = fullAlphabet[totalShift % fullAlphabet.Length];
-            return result.ToString();
+            int totalShift = GetLetterNumber(charToShift) + shift; 
+            if (totalShift < fullAlphabet.Length)
+            {
+                return (fullAlphabet[(totalShift)]).ToString();
+            }
+            else 
+            {
+                return (fullAlphabet[totalShift - fullAlphabet.Length]).ToString();
+            }  
         }
         /// <summary>
         /// Obtiene el valor numérico de la letra
@@ -79,17 +93,14 @@ namespace Vigenere.Library
         /// <returns></returns>
         private int GetLetterNumber(string letter)
         {
-            int result = 0;
-
+            int result = -1;
             foreach (char c in fullAlphabet)
             {
-
-                if (c.ToString() == letter)
+                result++;
+                if (c.ToString().ToLower() == letter.ToLower())
                 {
-
                     break;
                 }
-                result++;
             }
             return result;
         }
